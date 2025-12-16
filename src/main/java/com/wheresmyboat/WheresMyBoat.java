@@ -124,8 +124,8 @@ public class WheresMyBoat extends Plugin
 
 		for (int i = 0; i < 5; i++) {
 			Boat boat = boats[i];
-			if (boat == null) continue;
-			
+			if (boat == null || !boat.isOwned()) continue;
+
 			Port port = boat.getPort();
 			if (port != null) {
 				summary += ("<br><col=ff981f>" + boat.getBoatName() + "</col>: <col=77eeaa>"+port.toString()+"</col>");

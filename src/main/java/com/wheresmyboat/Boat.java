@@ -32,11 +32,14 @@ public class Boat {
 	@Getter
 	private int portId;
 
+	private boolean owned;
+
 	private int name1_vb;
 	private int name2_vb;
 	private int name3_vb;
 	private int port_vb;
 	private int hp_vb;
+	private int owned_vb;
 	
 	public Boat(Client client, int boatID) {
 		this.boatID = boatID;
@@ -48,39 +51,56 @@ public class Boat {
 			name3_vb = VarbitID.SAILING_BOAT_1_NAME_3;
 			port_vb = VarbitID.SAILING_BOAT_1_PORT;
 			hp_vb = VarbitID.SAILING_BOAT_1_STORED_HP;
+			owned_vb = VarbitID.SAILING_BOAT_1_OWNED;
 		} else if (boatID == 2) {
 			name1_vb = VarbitID.SAILING_BOAT_2_NAME_1;
 			name2_vb = VarbitID.SAILING_BOAT_2_NAME_2;
 			name3_vb = VarbitID.SAILING_BOAT_2_NAME_3;
 			port_vb = VarbitID.SAILING_BOAT_2_PORT;
 			hp_vb = VarbitID.SAILING_BOAT_2_STORED_HP;
+			owned_vb = VarbitID.SAILING_BOAT_2_OWNED;
 		} else if (boatID == 3) {
 			name1_vb = VarbitID.SAILING_BOAT_3_NAME_1;
 			name2_vb = VarbitID.SAILING_BOAT_3_NAME_2;
 			name3_vb = VarbitID.SAILING_BOAT_3_NAME_3;
 			port_vb = VarbitID.SAILING_BOAT_3_PORT;
 			hp_vb = VarbitID.SAILING_BOAT_3_STORED_HP;
+			owned_vb = VarbitID.SAILING_BOAT_3_OWNED;
 		} else if (boatID == 4) {
 			name1_vb = VarbitID.SAILING_BOAT_4_NAME_1;
 			name2_vb = VarbitID.SAILING_BOAT_4_NAME_2;
 			name3_vb = VarbitID.SAILING_BOAT_4_NAME_3;
 			port_vb = VarbitID.SAILING_BOAT_4_PORT;
 			hp_vb = VarbitID.SAILING_BOAT_4_STORED_HP;
+			owned_vb = VarbitID.SAILING_BOAT_4_OWNED;
 		} else if (boatID == 5) {
 			name1_vb = VarbitID.SAILING_BOAT_5_NAME_1;
 			name2_vb = VarbitID.SAILING_BOAT_5_NAME_2;
 			name3_vb = VarbitID.SAILING_BOAT_5_NAME_3;
 			port_vb = VarbitID.SAILING_BOAT_5_PORT;
 			hp_vb = VarbitID.SAILING_BOAT_5_STORED_HP;
+			owned_vb = VarbitID.SAILING_BOAT_5_OWNED;
 		}
 
 		updateName();
 		updatePort();
 	}
 
+	public boolean isOwned() {
+		return this.owned;
+	}
+
 	public void updatePort() {
+		int owned = client.getVarbitValue(owned_vb);
+		if (owned == 0) {
+			this.owned = false;
+		}
+		else {
+			this.owned = true;
+		}
+
 		int portbit = client.getVarbitValue(port_vb);
-		
+
 		this.portId = portbit;
 		this.port = Port.getPort(portbit);
 	}
