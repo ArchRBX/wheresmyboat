@@ -1,12 +1,15 @@
 package com.wheresmyboat;
 
-import com.google.inject.Provides;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.api.GameState;
+import net.runelite.api.ScriptID;
 import net.runelite.api.annotations.Varbit;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ScriptPostFired;
@@ -15,12 +18,16 @@ import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarbitID;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.game.AgilityShortcut;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.worldmap.WorldMapConfig;
+import net.runelite.client.ui.overlay.worldmap.WorldMapPoint;
+import net.runelite.client.ui.overlay.worldmap.WorldMapPointManager;
 
+import com.google.inject.Provides;
 import com.wheresmyboat.enums.Port;
 
 @Slf4j
@@ -37,6 +44,9 @@ public class WheresMyBoat extends Plugin
 
 	@Inject
 	private WheresMyBoatConfig config;
+
+	@Inject
+	private WorldMapPointManager worldMapPointManager;
 
 	private Boat[] boats;
 
@@ -104,6 +114,20 @@ public class WheresMyBoat extends Plugin
 			boats[4].updatePort();
 	}
 
+	private void updateMapIcons() {
+		worldMapPointManager.removeIf(BoatWorldMapPoint.class::isInstance);
+		
+		for (int i = 0; i < 5; i++) {
+			Boat boat = boats[i];
+			if (boat == null || !boat.isOwned()) continue;
+
+			Port port = boat.getPort();
+			if (port != null) {
+				worldMapPointManager.add(new BoatWorldMapPoint(boat.getBoatName(),port.getNavigationLocation()));
+			}
+		}
+	}
+
 	private void updateSailingPanel() {
 		int panelState = client.getVarbitValue(VarbitID.SAILING_SIDEPANEL_TABS); // if we not on the facilities tab don't update it
 		if (panelState != 0) return;
@@ -149,6 +173,9 @@ public class WheresMyBoat extends Plugin
 
 		if (id == 8712) {
 			updateSailingPanel();
+		}
+		if (scriptPostFired.getScriptId() == ScriptID.WORLDMAP_LOADMAP) {
+			updateMapIcons();
 		}
 	}
 
