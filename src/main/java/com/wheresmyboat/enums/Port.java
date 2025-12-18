@@ -55,6 +55,7 @@ public enum Port
 	DOGNOSE_ISLAND(35,"Dognose Island", 40, new WorldPoint(3061, 2639, 0)),
 	REMOTE_ISLAND(36,"Remote Island", 45, new WorldPoint(2971, 2603, 0)),
 	THE_LITTLE_PEARL(37,"The Little Pearl", 45, new WorldPoint(3354, 2216, 0)),
+	THE_ONYX_CREST(38,"The Onyx Crest", 47, new WorldPoint(2997, 2288, 0)),
 	VATRACHOS_ISLAND(41,"Vatrachos Island", 46, new WorldPoint(1872, 2985, 0)),
 	CHINCHOMPA_ISLAND(52,"Chinchompa Island", 42, new WorldPoint(1892, 3429, 0)),
 	// the following are educated guesses based on sprites and level reqs
@@ -62,9 +63,7 @@ public enum Port
 	RUINS_OF_UNKAH(19,"Ruins of Unkah", 48, new WorldPoint(3143, 2824, 0)),
 	VOID_KNIGHTS_OUTPOST(20,"Void Knights' Outpost", 50, new WorldPoint(2651, 2678, 0)),
 	PORT_ROBERTS(21,"Port Roberts", 50, new WorldPoint(1860, 3306, 0)),
-	//
 	// no clue! help appreciated.
-	THE_ONYX_CREST(-1,"The Onyx Crest", 47, new WorldPoint(2997, 2288, 0)),
 	SHIMMERING_ATOLL(-1,"Shimmering Atoll", 49, new WorldPoint(1557, 2771, 0)),
 	ANGLERS_RETREAT(-1,"Anglers' Retreat", 51, new WorldPoint(2467, 2721, 0)),
 	MINOTAURS_REST(-1,"Minotaurs' Rest", 54, new WorldPoint(1958, 3117, 0)),
