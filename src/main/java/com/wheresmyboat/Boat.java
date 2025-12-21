@@ -23,11 +23,9 @@ public class Boat {
 	protected int boatID;
 	protected Client client;
 
-	@Getter
-	private String boatName;
-
-	@Getter
-	private Port port;
+	@Getter	private String boatName;
+	@Getter	private Port port;
+	@Getter private float health;
 
 	@Getter
 	private int portId;
@@ -39,66 +37,90 @@ public class Boat {
 	private int name3_vb;
 	private int port_vb;
 	private int hp_vb;
+	private int maxhp_vb;
 	private int owned_vb;
 	
 	public Boat(Client client, int boatID) {
 		this.boatID = boatID;
 		this.client = client;
 
-		if (boatID == 1) {
-			name1_vb = VarbitID.SAILING_BOAT_1_NAME_1;
-			name2_vb = VarbitID.SAILING_BOAT_1_NAME_2;
-			name3_vb = VarbitID.SAILING_BOAT_1_NAME_3;
-			port_vb = VarbitID.SAILING_BOAT_1_PORT;
-			hp_vb = VarbitID.SAILING_BOAT_1_STORED_HP;
-			owned_vb = VarbitID.SAILING_BOAT_1_OWNED;
-		} else if (boatID == 2) {
-			name1_vb = VarbitID.SAILING_BOAT_2_NAME_1;
-			name2_vb = VarbitID.SAILING_BOAT_2_NAME_2;
-			name3_vb = VarbitID.SAILING_BOAT_2_NAME_3;
-			port_vb = VarbitID.SAILING_BOAT_2_PORT;
-			hp_vb = VarbitID.SAILING_BOAT_2_STORED_HP;
-			owned_vb = VarbitID.SAILING_BOAT_2_OWNED;
-		} else if (boatID == 3) {
-			name1_vb = VarbitID.SAILING_BOAT_3_NAME_1;
-			name2_vb = VarbitID.SAILING_BOAT_3_NAME_2;
-			name3_vb = VarbitID.SAILING_BOAT_3_NAME_3;
-			port_vb = VarbitID.SAILING_BOAT_3_PORT;
-			hp_vb = VarbitID.SAILING_BOAT_3_STORED_HP;
-			owned_vb = VarbitID.SAILING_BOAT_3_OWNED;
-		} else if (boatID == 4) {
-			name1_vb = VarbitID.SAILING_BOAT_4_NAME_1;
-			name2_vb = VarbitID.SAILING_BOAT_4_NAME_2;
-			name3_vb = VarbitID.SAILING_BOAT_4_NAME_3;
-			port_vb = VarbitID.SAILING_BOAT_4_PORT;
-			hp_vb = VarbitID.SAILING_BOAT_4_STORED_HP;
-			owned_vb = VarbitID.SAILING_BOAT_4_OWNED;
-		} else if (boatID == 5) {
-			name1_vb = VarbitID.SAILING_BOAT_5_NAME_1;
-			name2_vb = VarbitID.SAILING_BOAT_5_NAME_2;
-			name3_vb = VarbitID.SAILING_BOAT_5_NAME_3;
-			port_vb = VarbitID.SAILING_BOAT_5_PORT;
-			hp_vb = VarbitID.SAILING_BOAT_5_STORED_HP;
-			owned_vb = VarbitID.SAILING_BOAT_5_OWNED;
+		switch (boatID) {
+			case 1:
+				name1_vb = VarbitID.SAILING_BOAT_1_NAME_1;
+				name2_vb = VarbitID.SAILING_BOAT_1_NAME_2;
+				name3_vb = VarbitID.SAILING_BOAT_1_NAME_3;
+				port_vb = VarbitID.SAILING_BOAT_1_PORT;
+				hp_vb = VarbitID.SAILING_BOAT_1_STORED_HP;
+				maxhp_vb = VarbitID.SAILING_BOAT_1_STORED_MAXHP;
+				owned_vb = VarbitID.SAILING_BOAT_1_OWNED;
+				break;
+			case 2:
+				name1_vb = VarbitID.SAILING_BOAT_2_NAME_1;
+				name2_vb = VarbitID.SAILING_BOAT_2_NAME_2;
+				name3_vb = VarbitID.SAILING_BOAT_2_NAME_3;
+				port_vb = VarbitID.SAILING_BOAT_2_PORT;
+				hp_vb = VarbitID.SAILING_BOAT_2_STORED_HP;
+				maxhp_vb = VarbitID.SAILING_BOAT_2_STORED_MAXHP;
+				owned_vb = VarbitID.SAILING_BOAT_2_OWNED;
+				break;
+			case 3:
+				name1_vb = VarbitID.SAILING_BOAT_3_NAME_1;
+				name2_vb = VarbitID.SAILING_BOAT_3_NAME_2;
+				name3_vb = VarbitID.SAILING_BOAT_3_NAME_3;
+				port_vb = VarbitID.SAILING_BOAT_3_PORT;
+				hp_vb = VarbitID.SAILING_BOAT_3_STORED_HP;
+				maxhp_vb = VarbitID.SAILING_BOAT_3_STORED_MAXHP;
+				owned_vb = VarbitID.SAILING_BOAT_3_OWNED;
+				break;
+			case 4:
+				name1_vb = VarbitID.SAILING_BOAT_4_NAME_1;
+				name2_vb = VarbitID.SAILING_BOAT_4_NAME_2;
+				name3_vb = VarbitID.SAILING_BOAT_4_NAME_3;
+				port_vb = VarbitID.SAILING_BOAT_4_PORT;
+				hp_vb = VarbitID.SAILING_BOAT_4_STORED_HP;
+				maxhp_vb = VarbitID.SAILING_BOAT_4_STORED_MAXHP;
+				owned_vb = VarbitID.SAILING_BOAT_4_OWNED;
+				break;
+			case 5:
+				name1_vb = VarbitID.SAILING_BOAT_5_NAME_1;
+				name2_vb = VarbitID.SAILING_BOAT_5_NAME_2;
+				name3_vb = VarbitID.SAILING_BOAT_5_NAME_3;
+				port_vb = VarbitID.SAILING_BOAT_5_PORT;
+				hp_vb = VarbitID.SAILING_BOAT_5_STORED_HP;
+				maxhp_vb = VarbitID.SAILING_BOAT_5_STORED_MAXHP;
+				owned_vb = VarbitID.SAILING_BOAT_5_OWNED;
+				break;
+			default:
+				break;
 		}
 
 		updateName();
 		updatePort();
+		updateOwned();
 	}
 
 	public boolean isOwned() {
 		return this.owned;
 	}
 
-	public void updatePort() {
-		int owned = client.getVarbitValue(owned_vb);
-		if (owned == 0) {
-			this.owned = false;
-		}
-		else {
+	public void updateHealth() {
+		int hp = client.getVarbitValue(hp_vb);
+		int maxhp = client.getVarbitValue(maxhp_vb);
+		
+		health = (float) hp / (float) maxhp;
+	}
+
+	public void updateOwned() {
+		// not sure why the owned varbit isn't reliable but hey-ho!
+		if (client.getVarbitValue(owned_vb) > 0 || client.getVarbitValue(port_vb) > 0) {
 			this.owned = true;
 		}
+		else {
+			this.owned = false;
+		}
+	}
 
+	public void updatePort() {
 		int portbit = client.getVarbitValue(port_vb);
 
 		this.portId = portbit;

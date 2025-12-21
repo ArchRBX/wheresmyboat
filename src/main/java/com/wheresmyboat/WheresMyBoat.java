@@ -112,23 +112,54 @@ public class WheresMyBoat extends Plugin
 			boats[3].updatePort();
 		if (id == VarbitID.SAILING_BOAT_5_PORT)
 			boats[4].updatePort();
+
+		// update health
+
+		if (id == VarbitID.SAILING_BOAT_1_STORED_HP || id == VarbitID.SAILING_BOAT_1_STORED_MAXHP)
+			boats[0].updateHealth();
+		if (id == VarbitID.SAILING_BOAT_2_STORED_HP || id == VarbitID.SAILING_BOAT_2_STORED_MAXHP)
+			boats[1].updateHealth();
+		if (id == VarbitID.SAILING_BOAT_3_STORED_HP || id == VarbitID.SAILING_BOAT_3_STORED_MAXHP)
+			boats[2].updateHealth();
+		if (id == VarbitID.SAILING_BOAT_4_STORED_HP || id == VarbitID.SAILING_BOAT_4_STORED_MAXHP)
+			boats[3].updateHealth();
+		if (id == VarbitID.SAILING_BOAT_5_STORED_HP || id == VarbitID.SAILING_BOAT_5_STORED_MAXHP)
+			boats[4].updateHealth();
+
+		// update ownership
+		if (id == VarbitID.SAILING_BOAT_1_OWNED)
+			boats[0].updateOwned();
+		if (id == VarbitID.SAILING_BOAT_2_OWNED)
+			boats[1].updateOwned();
+		if (id == VarbitID.SAILING_BOAT_3_OWNED)
+			boats[2].updateOwned();
+		if (id == VarbitID.SAILING_BOAT_4_OWNED)
+			boats[3].updateOwned();
+		if (id == VarbitID.SAILING_BOAT_5_OWNED)
+			boats[4].updateOwned();
+
+		updateSailingPanel();
 	}
 
 	private void updateMapIcons() {
 		worldMapPointManager.removeIf(BoatWorldMapPoint.class::isInstance);
 		
-		for (int i = 0; i < 5; i++) {
-			Boat boat = boats[i];
-			if (boat == null || !boat.isOwned()) continue;
+		if (config.worldMarkersEnabled()) {
+			for (int i = 0; i < 5; i++) {
+				Boat boat = boats[i];
+				if (boat == null || !boat.isOwned()) continue;
 
-			Port port = boat.getPort();
-			if (port != null) {
-				worldMapPointManager.add(new BoatWorldMapPoint(boat.getBoatName(),port.getNavigationLocation()));
+				Port port = boat.getPort();
+				if (port != null) {
+					worldMapPointManager.add(new BoatWorldMapPoint(i,boat.getBoatName(),port.getNavigationLocation(),config));
+				}
 			}
 		}
 	}
 
 	private void updateSailingPanel() {
+		if (!config.sailingPanelEnabled()) return;
+
 		int panelState = client.getVarbitValue(VarbitID.SAILING_SIDEPANEL_TABS); // if we not on the facilities tab don't update it
 		if (panelState != 0) return;
 
@@ -148,22 +179,28 @@ public class WheresMyBoat extends Plugin
 
 		for (int i = 0; i < 5; i++) {
 			Boat boat = boats[i];
-			if (boat == null || !boat.isOwned()) continue;
+			if (boat == null || !boat.isOwned()) {
+				summary += String.format("<br><col=bf7810>Ship %d</col>: <col=65aa88>Not Bought</col>",i+1);
+				continue;
+			}
+
+			String portName = Integer.toString(boat.getPortId());
 
 			Port port = boat.getPort();
 			if (port != null) {
-				summary += ("<br><col=ff981f>" + boat.getBoatName() + "</col>: <col=77eeaa>"+port.toString()+"</col>");
+				portName = port.toString();
 			}
-			else {				
-				summary += ("<br><col=ff981f>" + boat.getBoatName() + "</col>: <col=77eeaa>PORT "+boat.getPortId()+"</col>");
-			}
+			
+			int health = (int) (boat.getHealth()*100);
+
+			summary += String.format("<br><col=ff981f>%s</col> <col=d0d0d0>(%d%%)</col>: <col=77eeaa>%s</col>",boat.getBoatName(),health,portName);
 		}
 
 		Widget facilitiesContent = facilitiesWidget.getChild(0);
 		
 		facilitiesContent.setText(summary);
 		facilitiesContent.setXTextAlignment(0);
-		facilitiesContent.setTextColor(0xffffff);
+		facilitiesContent.setYTextAlignment(0);
 	}
 
 	@Subscribe
