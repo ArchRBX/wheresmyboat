@@ -1,5 +1,6 @@
 .gradle
 build
+.gitignore
 .idea/
 .project
 .settings/

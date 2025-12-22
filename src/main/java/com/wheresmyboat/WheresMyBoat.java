@@ -1,33 +1,30 @@
 package com.wheresmyboat;
 
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
+import net.runelite.api.FontID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.api.GameState;
 import net.runelite.api.ScriptID;
-import net.runelite.api.annotations.Varbit;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ScriptPostFired;
 import net.runelite.api.events.VarbitChanged;
-import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetPositionMode;
+import net.runelite.api.widgets.WidgetType;
+import net.runelite.api.gameval.DBTableID;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.game.AgilityShortcut;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.worldmap.WorldMapConfig;
-import net.runelite.client.ui.overlay.worldmap.WorldMapPoint;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPointManager;
 
 import com.google.inject.Provides;
+
+import com.wheresmyboat.enums.BoatType;
 import com.wheresmyboat.enums.Port;
 
 @Slf4j
@@ -114,7 +111,6 @@ public class WheresMyBoat extends Plugin
 			boats[4].updatePort();
 
 		// update health
-
 		if (id == VarbitID.SAILING_BOAT_1_STORED_HP || id == VarbitID.SAILING_BOAT_1_STORED_MAXHP)
 			boats[0].updateHealth();
 		if (id == VarbitID.SAILING_BOAT_2_STORED_HP || id == VarbitID.SAILING_BOAT_2_STORED_MAXHP)
@@ -137,6 +133,18 @@ public class WheresMyBoat extends Plugin
 			boats[3].updateOwned();
 		if (id == VarbitID.SAILING_BOAT_5_OWNED)
 			boats[4].updateOwned();
+
+		// update type
+		if (id == VarbitID.SAILING_BOAT_1_TYPE)
+			boats[0].updateType();
+		if (id == VarbitID.SAILING_BOAT_2_TYPE)
+			boats[1].updateType();
+		if (id == VarbitID.SAILING_BOAT_3_TYPE)
+			boats[2].updateType();
+		if (id == VarbitID.SAILING_BOAT_4_TYPE)
+			boats[3].updateType();
+		if (id == VarbitID.SAILING_BOAT_5_TYPE)
+			boats[4].updateType();
 
 		updateSailingPanel();
 	}
@@ -175,32 +183,107 @@ public class WheresMyBoat extends Plugin
 		Widget facilitiesWidget = client.getWidget(InterfaceID.SailingSidepanel.FACILITIES_CONTENT);
 		if (facilitiesWidget == null) return;
 
-		String summary = "";
+		facilitiesWidget.deleteAllChildren();
 
 		for (int i = 0; i < 5; i++) {
 			Boat boat = boats[i];
-			if (boat == null || !boat.isOwned()) {
-				summary += String.format("<br><col=bf7810>Ship %d</col>: <col=65aa88>Not Bought</col>",i+1);
+			if (boat == null) {
 				continue;
 			}
 
+			String boatName = boat.getBoatName();
 			String portName = Integer.toString(boat.getPortId());
 
-			Port port = boat.getPort();
-			if (port != null) {
-				portName = port.toString();
+			int boatColor = 0xff981f;
+			int portColor = 0x77eebb;
+
+			int portSpriteID = 2851;
+			int typeSpriteID = 7077;
+
+			boolean isOwned = boat.isOwned();
+			
+			if (isOwned) {
+				Port port = boat.getPort();
+				if (port != null) {
+					portName = port.toString();
+					portSpriteID = port.getSpriteID();
+				}
+				else {
+					// no enum found for port so we use dbtables to fill in the details. won't show up on the world map but better than nothing!
+					var portRows = client.getDBRowsByValue(DBTableID.SailingDock.ID,DBTableID.SailingDock.COL_DOCK_ID,0,boat.getPortId());
+
+					if (!portRows.isEmpty()) {
+						int dbRow = portRows.get(0);
+						portName = (String) client.getDBTableField(dbRow,DBTableID.SailingDock.COL_NICE_NAME, 0)[0];
+						portSpriteID = (int) client.getDBTableField(dbRow,DBTableID.SailingDock.COL_DOCK_SPRITE_SMALL, 0)[0];
+					}
+				}
+
+				BoatType boatType = boat.getBoatType();
+				if (boatType != null) {
+					typeSpriteID = boatType.getSpriteID();
+				}
+			}
+			else {
+				boatName = "Boat "+(i+1);
+				portName = "Not Owned";
+				portColor = 0x91bea9;
 			}
 			
-			int health = (int) (boat.getHealth()*100);
+			//int health = (int) (boat.getHealth()*100);
 
-			summary += String.format("<br><col=ff981f>%s</col> <col=d0d0d0>(%d%%)</col>: <col=77eeaa>%s</col>",boat.getBoatName(),health,portName);
+			int layerWidth = facilitiesWidget.getWidth();
+
+			Widget boatLayer = facilitiesWidget.createChild(WidgetType.LAYER);
+			boatLayer.setName("FACILITIES_BOAT_ITEM");
+			boatLayer.setSize(layerWidth, 30);
+			boatLayer.setPos(0,i*30);
+			boatLayer.revalidate();
+
+			int PADDING_X = 23;
+
+			Widget boatLabel = boatLayer.createChild(WidgetType.TEXT);
+			boatLabel.setPos(PADDING_X,2);
+			boatLabel.setOriginalHeight(12);
+			boatLabel.setOriginalWidth(layerWidth-20);
+			boatLabel.setTextShadowed(true);
+			boatLabel.setText(boatName);
+			boatLabel.setFontId(FontID.PLAIN_11);
+			boatLabel.setTextColor(boatColor);
+			boatLabel.revalidate();
+
+			Widget typeIcon = boatLayer.createChild(WidgetType.GRAPHIC);
+			typeIcon.setPos(0,3);
+			typeIcon.setSize(20,20);
+			typeIcon.setSpriteId(typeSpriteID);
+			typeIcon.revalidate();
+
+			if (isOwned) {
+				Widget portIcon = boatLayer.createChild(WidgetType.GRAPHIC);
+				portIcon.setPos(0,4);
+				portIcon.setXPositionMode(WidgetPositionMode.ABSOLUTE_RIGHT);
+				portIcon.setSize(18,18);
+				portIcon.setSpriteId(portSpriteID);
+				portIcon.revalidate();
+			}
+
+			Widget portLabel = boatLayer.createChild(WidgetType.TEXT);
+			portLabel.setPos(20,15);
+			portLabel.setOriginalHeight(12);
+			portLabel.setOriginalWidth(layerWidth-20);
+			portLabel.setTextShadowed(true);
+			portLabel.setText(portName);
+			portLabel.setFontId(FontID.PLAIN_11);
+			portLabel.setTextColor(portColor);
+			portLabel.revalidate();
+
+			Widget divider = boatLayer.createChild(WidgetType.LINE);
+			divider.setOriginalHeight(0);
+			divider.setOriginalWidth(layerWidth);
+			divider.setPos(0,29);
+			divider.setTextColor(0x666666);
+			divider.revalidate();
 		}
-
-		Widget facilitiesContent = facilitiesWidget.getChild(0);
-		
-		facilitiesContent.setText(summary);
-		facilitiesContent.setXTextAlignment(0);
-		facilitiesContent.setYTextAlignment(0);
 	}
 
 	@Subscribe
@@ -211,7 +294,7 @@ public class WheresMyBoat extends Plugin
 		if (id == 8712) {
 			updateSailingPanel();
 		}
-		if (scriptPostFired.getScriptId() == ScriptID.WORLDMAP_LOADMAP) {
+		if (id == ScriptID.WORLDMAP_LOADMAP) {
 			updateMapIcons();
 		}
 	}

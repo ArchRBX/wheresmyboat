@@ -1,23 +1,15 @@
 package com.wheresmyboat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
-import com.wheresmyboat.enums.Port;
 
 import net.runelite.api.Client;
-import net.runelite.client.callback.ClientThread;
-
-import net.runelite.api.annotations.Varbit;
 import net.runelite.api.gameval.DBTableID;
 import net.runelite.api.gameval.VarbitID;
-import net.runelite.client.plugins.Plugin;
-import net.runelite.api.events.VarbitChanged;
+
+import com.wheresmyboat.enums.BoatType;
+import com.wheresmyboat.enums.Port;
+
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 public class Boat {
 	protected int boatID;
@@ -25,10 +17,10 @@ public class Boat {
 
 	@Getter	private String boatName;
 	@Getter	private Port port;
+	@Getter private BoatType boatType;
 	@Getter private float health;
 
-	@Getter
-	private int portId;
+	@Getter	private int portId;
 
 	private boolean owned;
 
@@ -39,6 +31,7 @@ public class Boat {
 	private int hp_vb;
 	private int maxhp_vb;
 	private int owned_vb;
+	private int type_vb;
 	
 	public Boat(Client client, int boatID) {
 		this.boatID = boatID;
@@ -53,6 +46,7 @@ public class Boat {
 				hp_vb = VarbitID.SAILING_BOAT_1_STORED_HP;
 				maxhp_vb = VarbitID.SAILING_BOAT_1_STORED_MAXHP;
 				owned_vb = VarbitID.SAILING_BOAT_1_OWNED;
+				type_vb = VarbitID.SAILING_BOAT_1_TYPE;
 				break;
 			case 2:
 				name1_vb = VarbitID.SAILING_BOAT_2_NAME_1;
@@ -62,6 +56,7 @@ public class Boat {
 				hp_vb = VarbitID.SAILING_BOAT_2_STORED_HP;
 				maxhp_vb = VarbitID.SAILING_BOAT_2_STORED_MAXHP;
 				owned_vb = VarbitID.SAILING_BOAT_2_OWNED;
+				type_vb = VarbitID.SAILING_BOAT_2_TYPE;
 				break;
 			case 3:
 				name1_vb = VarbitID.SAILING_BOAT_3_NAME_1;
@@ -71,6 +66,7 @@ public class Boat {
 				hp_vb = VarbitID.SAILING_BOAT_3_STORED_HP;
 				maxhp_vb = VarbitID.SAILING_BOAT_3_STORED_MAXHP;
 				owned_vb = VarbitID.SAILING_BOAT_3_OWNED;
+				type_vb = VarbitID.SAILING_BOAT_3_TYPE;
 				break;
 			case 4:
 				name1_vb = VarbitID.SAILING_BOAT_4_NAME_1;
@@ -80,6 +76,7 @@ public class Boat {
 				hp_vb = VarbitID.SAILING_BOAT_4_STORED_HP;
 				maxhp_vb = VarbitID.SAILING_BOAT_4_STORED_MAXHP;
 				owned_vb = VarbitID.SAILING_BOAT_4_OWNED;
+				type_vb = VarbitID.SAILING_BOAT_4_TYPE;
 				break;
 			case 5:
 				name1_vb = VarbitID.SAILING_BOAT_5_NAME_1;
@@ -89,6 +86,7 @@ public class Boat {
 				hp_vb = VarbitID.SAILING_BOAT_5_STORED_HP;
 				maxhp_vb = VarbitID.SAILING_BOAT_5_STORED_MAXHP;
 				owned_vb = VarbitID.SAILING_BOAT_5_OWNED;
+				type_vb = VarbitID.SAILING_BOAT_5_TYPE;
 				break;
 			default:
 				break;
@@ -97,6 +95,7 @@ public class Boat {
 		updateName();
 		updatePort();
 		updateOwned();
+		updateType();
 	}
 
 	public boolean isOwned() {
@@ -106,13 +105,22 @@ public class Boat {
 	public void updateHealth() {
 		int hp = client.getVarbitValue(hp_vb);
 		int maxhp = client.getVarbitValue(maxhp_vb);
-		
-		health = (float) hp / (float) maxhp;
+
+		if (maxhp > 0) {
+			health = (float) hp / (float) maxhp;
+		}
+		else {
+			health = 1; // might need to store the last hp ourselves
+		}
+	}
+
+	public void updateType() {
+		boatType = BoatType.fromId(client.getVarbitValue(type_vb));
 	}
 
 	public void updateOwned() {
 		// not sure why the owned varbit isn't reliable but hey-ho!
-		if (client.getVarbitValue(owned_vb) > 0 || client.getVarbitValue(port_vb) > 0) {
+		if (client.getVarbitValue(owned_vb) > 0 || client.getVarbitValue(port_vb) > 0 || client.getVarbitValue(name2_vb) > 0) {
 			this.owned = true;
 		}
 		else {
@@ -131,21 +139,27 @@ public class Boat {
 		int name1bit = client.getVarbitValue(name1_vb);
 		int name2bit = client.getVarbitValue(name2_vb);
 		int name3bit = client.getVarbitValue(name3_vb);
-		
-		int opt = name1bit == 0 ? DBTableID.SailingBoatNameOptions.COL_DEFAULT : DBTableID.SailingBoatNameOptions.COL_OPTION;
-		int num = name1bit == 0 ? 0 : name1bit - 1;
-		Object[] res = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_PREFIX_OPTIONS, opt, 0);
-		String name1 = res == null || res.length < num || res[num] == null ? "" : (String)res[num];
 
-		opt = name2bit == 0 ? DBTableID.SailingBoatNameOptions.COL_DEFAULT : DBTableID.SailingBoatNameOptions.COL_OPTION;
-		num = name2bit == 0 ? 0 : name2bit - 1;
-		res = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_DESCRIPTOR_OPTIONS, opt, 0);
-		String name2 = res == null || res.length < num || res[num] == null ? "" : (String)res[num];
+		// if none of the names are set we don't own the ship yet
+		if ((name1bit + name2bit + name3bit) == 0) {
+			boatName = "Boat "+boatID;
+			return;
+		}
 
-		opt = name3bit == 0 ? DBTableID.SailingBoatNameOptions.COL_DEFAULT : DBTableID.SailingBoatNameOptions.COL_OPTION;
-		num = name3bit == 0 ? 0 : name3bit - 1;
-		res = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_NOUN_OPTIONS, opt, 0);
-		String name3 = res == null || res.length < num || res[num] == null ? "" : (String)res[num];
+		// get indices
+		name1bit--;
+		name2bit--;
+		name3bit--;
+
+		int opt_col = DBTableID.SailingBoatNameOptions.COL_OPTION;
+
+		Object[] prefix_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_PREFIX_OPTIONS, opt_col, 0);
+		Object[] desc_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_DESCRIPTOR_OPTIONS, opt_col, 0);
+		Object[] noun_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_NOUN_OPTIONS, opt_col, 0);
+
+		String name1 = (String) prefix_opts[name1bit];
+		String name2 = (String) desc_opts[name2bit];
+		String name3 = (String) noun_opts[name3bit];
 
 		ArrayList<String> names = new ArrayList<String>();
 		

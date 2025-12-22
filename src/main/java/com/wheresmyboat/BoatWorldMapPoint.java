@@ -85,7 +85,7 @@ class BoatWorldMapPoint extends WorldMapPoint
 			this.setSnapToEdge(true);
 			this.setJumpOnClick(true);
 		}
-
+		
 		this.setName(boatName);
 		this.setImage(clueScrollWorldImage);
 		this.setImagePoint(clueScrollWorldImagePoint);
