@@ -225,7 +225,6 @@ public class WheresMyBoat extends Plugin
 				}
 			}
 			else {
-				boatName = "Boat "+(i+1);
 				portName = "Not Owned";
 				portColor = 0x91bea9;
 			}
@@ -268,7 +267,7 @@ public class WheresMyBoat extends Plugin
 			}
 
 			Widget portLabel = boatLayer.createChild(WidgetType.TEXT);
-			portLabel.setPos(20,15);
+			portLabel.setPos(PADDING_X,15);
 			portLabel.setOriginalHeight(12);
 			portLabel.setOriginalWidth(layerWidth-20);
 			portLabel.setTextShadowed(true);

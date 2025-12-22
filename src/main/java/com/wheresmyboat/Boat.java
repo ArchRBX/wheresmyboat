@@ -139,7 +139,7 @@ public class Boat {
 		int name1bit = client.getVarbitValue(name1_vb);
 		int name2bit = client.getVarbitValue(name2_vb);
 		int name3bit = client.getVarbitValue(name3_vb);
-
+		
 		// if none of the names are set we don't own the ship yet
 		if ((name1bit + name2bit + name3bit) == 0) {
 			boatName = "Boat "+boatID;
@@ -150,22 +150,31 @@ public class Boat {
 		name1bit--;
 		name2bit--;
 		name3bit--;
-
-		int opt_col = DBTableID.SailingBoatNameOptions.COL_OPTION;
-
-		Object[] prefix_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_PREFIX_OPTIONS, opt_col, 0);
-		Object[] desc_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_DESCRIPTOR_OPTIONS, opt_col, 0);
-		Object[] noun_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_NOUN_OPTIONS, opt_col, 0);
-
-		String name1 = (String) prefix_opts[name1bit];
-		String name2 = (String) desc_opts[name2bit];
-		String name3 = (String) noun_opts[name3bit];
+		
+		int option_col = DBTableID.SailingBoatNameOptions.COL_OPTION;
 
 		ArrayList<String> names = new ArrayList<String>();
-		
-		if (name1 != null && name1.length() > 0) names.add(name1);
-		if (name2 != null && name2.length() > 0) names.add(name2);
-		if (name3 != null && name3.length() > 0) names.add(name3);
+
+		if (name1bit > 0) {
+			Object[] prefix_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_PREFIX_OPTIONS, option_col, 0);
+
+			String name1 = (String) prefix_opts[name1bit];
+			if (name1 != null && name1.length() > 0) names.add(name1);
+		}
+
+		if (name2bit > 0) {
+			Object[] desc_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_DESCRIPTOR_OPTIONS, option_col, 0);
+
+			String name2 = (String) desc_opts[name2bit];
+			if (name2 != null && name2.length() > 0) names.add(name2);
+		}
+
+		if (name3bit > 0) {
+			Object[] noun_opts = client.getDBTableField(DBTableID.SailingBoatNameOptions.Row.SAILING_BOAT_NAME_NOUN_OPTIONS, option_col, 0);
+			
+			String name3 = (String) noun_opts[name3bit];
+			if (name3 != null && name3.length() > 0) names.add(name3);
+		}
 		
 		boatName = String.join(" ", names);
 	}
