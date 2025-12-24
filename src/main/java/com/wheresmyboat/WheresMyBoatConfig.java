@@ -57,16 +57,4 @@ public interface WheresMyBoatConfig extends Config
 	{
 		return false;
 	}
-
-	//
-
-	@ConfigItem(
-		keyName = "boat1hp",
-		name = "",
-		description = "",
-		hidden = true
-	)
-	default int boat1hp() {
-		return 1;
-	}
 }

@@ -36,7 +36,7 @@ public class Boat {
 	public Boat(Client client, int boatID) {
 		this.boatID = boatID;
 		this.client = client;
-
+		
 		switch (boatID) {
 			case 1:
 				name1_vb = VarbitID.SAILING_BOAT_1_NAME_1;
@@ -110,7 +110,7 @@ public class Boat {
 			health = (float) hp / (float) maxhp;
 		}
 		else {
-			health = 1; // might need to store the last hp ourselves
+			health = -1;
 		}
 	}
 
@@ -139,7 +139,7 @@ public class Boat {
 		int name1bit = client.getVarbitValue(name1_vb);
 		int name2bit = client.getVarbitValue(name2_vb);
 		int name3bit = client.getVarbitValue(name3_vb);
-		
+
 		// if none of the names are set we don't own the ship yet
 		if ((name1bit + name2bit + name3bit) == 0) {
 			boatName = "Boat "+boatID;
