@@ -281,8 +281,10 @@ public class WheresMyBoat extends Plugin
 				continue;
 			}
 			
+			int portId = boat.getPortId();
+
 			String boatName = boat.getBoatName();
-			String portName = Integer.toString(boat.getPortId());
+			String portName = Integer.toString(portId);
 			
 			int boatColor = 0xff981f;
 			int portColor = 0x77eebb;
@@ -311,6 +313,10 @@ public class WheresMyBoat extends Plugin
 						portName = (String) client.getDBTableField(dbRow,DBTableID.SailingDock.COL_NICE_NAME, 0)[0];
 						portSpriteID = (int) client.getDBTableField(dbRow,DBTableID.SailingDock.COL_DOCK_SPRITE_SMALL, 0)[0];
 					}
+				}
+				
+				if (portName.equals("255")) {
+					portName = "Bottled";
 				}
 				
 				BoatType boatType = boat.getBoatType();
