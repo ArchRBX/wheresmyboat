@@ -314,9 +314,12 @@ public class WheresMyBoat extends Plugin
 						portSpriteID = (int) client.getDBTableField(dbRow,DBTableID.SailingDock.COL_DOCK_SPRITE_SMALL, 0)[0];
 					}
 				}
-				
-				if (portName.equals("255")) {
+
+				if (portName.equals("255") || portId == 255) {
 					portName = "Bottled";
+				}
+				else if (portName.equals("254") || portId == 254) {
+					portName = "Wrecked";
 				}
 				
 				BoatType boatType = boat.getBoatType();
