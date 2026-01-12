@@ -317,9 +317,11 @@ public class WheresMyBoat extends Plugin
 
 				if (portName.equals("255") || portId == 255) {
 					portName = "Bottled";
+					portSpriteID = 7176;
 				}
 				else if (portName.equals("254") || portId == 254) {
 					portName = "Capsized";
+					portSpriteID = 7175;
 				}
 				
 				BoatType boatType = boat.getBoatType();
