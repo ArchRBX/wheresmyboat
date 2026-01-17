@@ -19,13 +19,14 @@ import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.PluginChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.overlay.worldmap.WorldMapPointManager;
 
 import com.google.gson.Gson;
 import com.google.inject.Provides;
-
 import com.wheresmyboat.enums.BoatType;
 import com.wheresmyboat.enums.Port;
 
@@ -44,10 +45,13 @@ public class WheresMyBoat extends Plugin
 	
 	@Inject
 	private WheresMyBoatConfig config;
+
+	@Inject
+	private PluginManager pluginManager;
 	
 	@Inject
 	private ConfigManager configManager;
-	
+
 	@Inject
 	private Gson gson;
 	
@@ -58,19 +62,19 @@ public class WheresMyBoat extends Plugin
 	private BoatCache[] boatCache;
 	
 	private static final String configGroup = "wheresmyboat";
-	
+
 	@Override
 	protected void startUp() throws Exception
 	{
 		log.debug("Starting DWMB...");
-		
+
 		boats = new Boat[5];
 		boatCache = new BoatCache[5];
 		
 		clientThread.invoke(() -> {
 			if(client.getGameState() == GameState.LOGGED_IN) {
 				for (int i = 0; i < 5; i++) {
-					Boat boat = new Boat(client,i+1);
+					Boat boat = new Boat(client,i+1,pluginManager,configManager);
 					boats[i] = boat;
 				}
 				
@@ -123,7 +127,7 @@ public class WheresMyBoat extends Plugin
 	{
 		if(gameStateChanged.getGameState() == GameState.LOGGED_IN) {
 			for (int i = 0; i < 5; i++) {
-				Boat boat = new Boat(client,i+1);
+				Boat boat = new Boat(client,i+1,pluginManager,configManager);
 				boats[i] = boat;
 			}
 		}
@@ -134,7 +138,7 @@ public class WheresMyBoat extends Plugin
 	{
 		log.debug("Stopped DWMB.");
 	}
-	
+
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged varbitChanged)
 	{
@@ -405,15 +409,43 @@ public class WheresMyBoat extends Plugin
 			updateMapIcons();
 		}
 	}
+
+	private void refreshNames() {
+		clientThread.invokeLater(() -> {
+			for (int i = 0; i < 5; i++) {
+				Boat boat = boats[i];
+				if (boat == null) continue;
+
+				boat.updateName();
+			}
+
+			updateSailingPanel();
+			updateMapIcons();
+		});
+	}
 	
 	@Subscribe
 	public void onConfigChanged(final ConfigChanged event)
 	{
-		if (!(event.getGroup()).equals(configGroup))
-			return;
-		
-		updateSailingPanel();
-		updateMapIcons();
+		String evtGroup = event.getGroup();
+
+		if (evtGroup.equals(configGroup)) {
+			updateSailingPanel();
+			updateMapIcons();
+		}
+		else if(evtGroup.equals("shiprenamer")) {
+			refreshNames();
+		}
+	}
+
+	@Subscribe
+	public void onPluginChanged(final PluginChanged event)
+	{
+		Plugin plugin = event.getPlugin();
+
+		if (plugin.getClass().getSimpleName().equals("ShipRenamerPlugin")) {
+			refreshNames();
+		}
 	}
 	
 	@Provides

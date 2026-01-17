@@ -1,10 +1,14 @@
 package com.wheresmyboat;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import net.runelite.api.Client;
 import net.runelite.api.gameval.DBTableID;
 import net.runelite.api.gameval.VarbitID;
+import net.runelite.client.config.ConfigManager;
+import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginManager;
 
 import com.wheresmyboat.enums.BoatType;
 import com.wheresmyboat.enums.Port;
@@ -14,6 +18,8 @@ import lombok.Getter;
 public class Boat {
 	protected int boatID;
 	protected Client client;
+	protected ConfigManager configManager;
+    protected PluginManager pluginManager;
 
 	@Getter	private String boatName;
 	@Getter	private Port port;
@@ -33,10 +39,13 @@ public class Boat {
 	private int owned_vb;
 	private int type_vb;
 	
-	public Boat(Client client, int boatID) {
+	public Boat(Client client, int boatID, PluginManager pluginManager, ConfigManager configManager) {
 		this.boatID = boatID;
 		this.client = client;
-		
+
+		this.pluginManager = pluginManager;
+		this.configManager = configManager;
+
 		switch (boatID) {
 			case 1:
 				name1_vb = VarbitID.SAILING_BOAT_1_NAME_1;
@@ -136,6 +145,24 @@ public class Boat {
 	}
 
 	public void updateName() {
+		//shiprenamer compatibility
+
+		for (Plugin plugin : pluginManager.getPlugins()) {
+			if (plugin.getClass().getSimpleName().equals("ShipRenamerPlugin")) {
+				if (pluginManager.isPluginActive(plugin)) {
+					String rename = configManager.getConfiguration("shiprenamer", "ship"+boatID+"name");
+					if (rename != null && rename.length() > 0) {
+						boatName = rename;
+						return;
+					}
+				}
+
+				break;
+			}
+		}
+
+		//standard name
+
 		int name1bit = client.getVarbitValue(name1_vb);
 		int name2bit = client.getVarbitValue(name2_vb);
 		int name3bit = client.getVarbitValue(name3_vb);
