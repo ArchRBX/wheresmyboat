@@ -262,7 +262,10 @@ public class WheresMyBoat extends Plugin
 		
 		int hasBoarded = client.getVarbitValue(VarbitID.SAILING_BOARDED_BOAT); // if we on a boat don't update it
 		if (hasBoarded != 0) return;
-		
+
+		int shipyardMode = client.getVarbitValue(VarbitID.SAILING_SIDEPANEL_SHIPYARD_MODE); // in the shipyard the game itself uses the facilities tab, so don't overwrite it
+		if (shipyardMode != 0) return;
+
 		Widget titleWidget = client.getWidget(InterfaceID.SailingSidepanel.TAB_TITLE);
 		if (titleWidget == null) return;
 		
